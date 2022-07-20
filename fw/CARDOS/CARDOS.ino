@@ -261,6 +261,13 @@ void setup()
   Serial.begin(115200);
 
   Serial.println("#Cvak...");
+
+  delay(30);  
+  {
+    // switch to UTC time; UBX-CFG-RATE (6)+6+(2)=14 configuration bytes
+    const char cmd[14]={0xB5 ,0x62 ,0x06 ,0x08 ,0x06 ,0x00 ,0xE8 ,0x03 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x37};
+    for (int n=0;n<(14);n++) Serial1.write(cmd[n]); 
+  }
  
   ADMUX = (analog_reference << 6) | ((PIN | 0x10) & 0x1F);
   
@@ -340,6 +347,7 @@ void setup()
   }
 
   Serial.println("#Hmmm...");
+  Serial.println(dataString);
 
   
   hits = 0;
@@ -403,12 +411,6 @@ void loop()
 
   // GPS **********************
   set_power(GPS_ON);
-  delay(30);  
-  {
-    // switch to UTC time; UBX-CFG-RATE (6)+6+(2)=14 configuration bytes
-    const char cmd[14]={0xB5 ,0x62 ,0x06 ,0x08 ,0x06 ,0x00 ,0xE8 ,0x03 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x37};
-    for (int n=0;n<(14);n++) Serial1.write(cmd[n]); 
-  }
 
   {    
     // make a string for assembling the NMEA to log:
@@ -449,7 +451,6 @@ void loop()
       }
     }  
     set_power(GPS_OFF);
-
     Serial.println(dataString);  // print to terminal 
     //!!!wdt_reset(); //Reset WDT
   }
@@ -567,7 +568,6 @@ void loop()
       }
        
       count++;
-
       digitalWrite(LED_red, HIGH);  // Blink for Dasa
       Serial.println(dataString);   // print to terminal (additional 700 ms in DEBUG mode)
       digitalWrite(LED_red, LOW);                
@@ -589,7 +589,6 @@ void loop()
         dataString += ",";
         dataString += String(hit_channel[n]); 
       }
-       
       digitalWrite(LED_red, HIGH);  // Blink for Dasa
       Serial.println(dataString);   // print to terminal (additional 700 ms in DEBUG mode)
       digitalWrite(LED_red, LOW);                
