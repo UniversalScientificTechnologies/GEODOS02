@@ -1,0 +1,36 @@
+name: Build firmware
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "CARDOS01A" branch
+  push:
+    branches: [ "CARDOS01A" ]
+  pull_request:
+    branches: [ "CARDOS01A" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Compile all examples
+          uses: ArminJo/arduino-test-compile@v3
+          with:
+            arduino-board-fqbn: MightyCore:avr:1284
+            platform-url: https://mcudude.github.io/MightyCore/package_MCUdude_MightyCore_index.json
+
+        - name: Store data
+          uses: actions/upload-artifact@v3
+          with:
+            name: fw
+            path: fw
+
+        - uses: EndBug/add-and-commit@v9
+          with:
+            message: 'Add build files'
+            add: '*.hex'
