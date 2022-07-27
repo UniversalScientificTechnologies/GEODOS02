@@ -193,7 +193,7 @@ void set_power(uint8_t state)
       PORTB &= 0b11110001;
       break;
     case GPS_ON:
-      Serial1.begin(38400);
+      Serial1.begin(57600);
       digitalWrite(GPSpower, HIGH);  
       break;      
     case GPS_OFF:
