@@ -23,7 +23,7 @@ jobs:
           with:
             arduino-board-fqbn: MightyCore:avr:1284
             platform-url: https://mcudude.github.io/MightyCore/package_MCUdude_MightyCore_index.json
-            required-libraries: Adafruit MPL3115A2
+            required-libraries: Adafruit MPL3115A2 Library
 
         - name: Store data
           uses: actions/upload-artifact@v3
