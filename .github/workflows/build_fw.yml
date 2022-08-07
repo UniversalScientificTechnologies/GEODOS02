@@ -18,6 +18,11 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
 
+        - name: Update git hash
+          run: |
+            echo "// This file is overwritten by github actions, do not update it manually" > fw/CARDOS/githash.h
+            echo "String githash = "\""${{ github.sha }}"\"";" >> fw/CARDOS/githash.h
+
         - name: Compile all sources
           uses: ArminJo/arduino-test-compile@v3
           with:
@@ -30,7 +35,8 @@ jobs:
           with:
             name: fw
             path: fw
-
+            retention-days: 1
+            
         - uses: EndBug/add-and-commit@v9
           with:
             message: 'Add build files'
