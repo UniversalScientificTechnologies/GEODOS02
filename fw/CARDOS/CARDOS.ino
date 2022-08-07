@@ -88,6 +88,7 @@ TX1/INT1 (D 11) PD3 17|        |24 PC2 (D 18) TCK
 #include <Adafruit_MPL3115A2.h>
 #include <avr/wdt.h>
 #include "src/TinyGPS++/TinyGPS++.h"
+#include "githash.h"
 
 #include <stdio.h>
 #include <stdint.h>
