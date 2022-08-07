@@ -325,7 +325,7 @@ void setup()
   //wdt_reset(); //Reset WDT
 
   // make a string for device identification output
-  String dataString = "$AIRDOS," + FWversion + "," + crystal + ","; // FW version and Git hash
+  String dataString = "$AIRDOS," + FWversion + "," + githash + "," + crystal + ","; // FW version and Git hash
 
   if (digitalRead(17)) // Protection against sensor mallfunction 
   {
