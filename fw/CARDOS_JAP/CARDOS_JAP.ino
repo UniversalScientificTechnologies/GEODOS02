@@ -1,6 +1,6 @@
 String FWversion = "CAR_JAP_1024_v0"; // Output data format
 
-#define RANGE 60   // histogram range
+#define RANGE 20   // histogram range
 #define NOISE  4    // first channel for reporting flux
 #define EVENTS 500 // maximal number of recorded events
 #define GPSerror 700000 // number of cycles for waitig for GPS in case of GPS error 
@@ -404,8 +404,6 @@ void loop()
     {
       dataString += "$Error";
     }
-
-
   }
 
 
@@ -472,8 +470,8 @@ void loop()
   
     hits = 0;
     // dosimeter integration
-    for (uint32_t i=0; i<100000; i++)    // cca 10.4 s
-    //for (uint32_t i=0; i<10000; i++)    // faster for testing
+    //for (uint32_t i=0; i<100000; i++)    // cca 10.4 s
+    for (uint32_t i=0; i<20000; i++)    // cca 1 s
     {
       //wdt_reset(); //Reset WDT
 
