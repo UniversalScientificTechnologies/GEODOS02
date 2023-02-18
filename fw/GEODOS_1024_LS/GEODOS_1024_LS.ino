@@ -19,8 +19,7 @@ String FWversion = "C_LS_1024_v3"; // 16 MHz
 #define GPSWAIT 600 // more than 50 s waiting for GPS fix
 
 #define MAXFILESIZE MAX_MEASUREMENTS * BYTES_MEASUREMENT // in bytes, 4 MB per day, 28 MB per week, 122 MB per month
-//!!!!#define MAX_MEASUREMENTS 11000ul // in measurement cycles, 5 500 per day
-#define MAX_MEASUREMENTS 11ul // in measurement cycles, 5 500 per day
+#define MAX_MEASUREMENTS 11000ul // in measurement cycles, 5 500 per day
 #define BYTES_MEASUREMENT 531ul // number of bytes per one measurement
 #define MAXFILES 200 // maximal number of files on SD card
 
@@ -470,7 +469,7 @@ void loop()
 
     {
       // switch to UTC time; UBX-CFG-RATE (6)+6+(2)=14 configuration bytes
-      const char cmd[14]={0xB5 ,0x62 ,0x06 ,0x08 ,0x06 ,0x00 ,0xE8 ,0x03 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x37};
+      const byte cmd[14]={0xB5 ,0x62 ,0x06 ,0x08 ,0x06 ,0x00 ,0xE8 ,0x03 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x37};
       for (int n=0;n<(14);n++) Serial1.write(cmd[n]); 
     }
     // flush serial buffer
@@ -595,13 +594,14 @@ void loop()
       buffer[n]=0;
     }
     uint16_t hit_count = 0;    // clear events
+    uint16_t suppress = 0;      
       
     // dosimeter integration
-    for (uint32_t i=0; i<100000; i++)    // cca 10.4 s
-    //for (uint32_t i=0; i<10000; i++)    // faster for testing
+    for (uint32_t i=0; i<100000; i++)    // cca 11 s
     {
       // start the conversion
       sbi(ADCSRA, ADSC);   
+      uint8_t raising_edge = PINB; // peak of pulse was before S/H? H = raising edge; L = falling edge
       delayMicroseconds(20); // wait more than 1.5 cycle of ADC clock for sample/hold
       DDRB = 0b10011111;                  // Reset peak detector
       delayMicroseconds(2);              
@@ -619,19 +619,26 @@ void loop()
       // combine the two bytes
       u_sensor = (hi << 8) | lo;          // 1024
     
-      if (u_sensor <  RANGE)
+      if (raising_edge & 1) 
       {
-        buffer[u_sensor]++;
+        suppress++;
       }
       else
       {
-        if (hit_count < EVENTS)
+        if (u_sensor <  RANGE)
         {
-          hit_time[hit_count] = i;
-          hit_channel[hit_count] = u_sensor;         
+          buffer[u_sensor]++;
         }
-        hit_count++;
-      }
+        else
+        {
+          if (hit_count < EVENTS)
+          {
+            hit_time[hit_count] = i;
+            hit_channel[hit_count] = u_sensor;         
+          }
+          hit_count++;
+        }
+      }  
     }  
 
     
@@ -655,6 +662,8 @@ void loop()
         dataString += String(tm); 
         dataString += ".";
         dataString += String(tm_s100); 
+        dataString += ",";
+        dataString += String(suppress);
         dataString += ",";
   
         if (! sensor.begin()) 
@@ -691,7 +700,7 @@ void loop()
       {
         dataString += ",";
         dataString += String(buffer[n]); 
-        //dataString += "\t";
+        //dataString += "\t"; // for calibration
         //if (n==NOISE) dataString += "*,";
       }
        
