@@ -1,27 +1,31 @@
+// GEODOS for Lomnicky stit
+
+// Compiled with: Arduino 1.8.13
+// MightyCore 2.2.1
+
 // R = 12 k OHM
 // 0.015 * CH + 0.268 [MeV]
 // CH0 = 14
 // 1024 ch. from 0.27 to cca 15 MeV
 
-#define DEBUG // Please comment it if you are not debugging
-String FWversion = "C_LS_1024_v2"; // Output data format
+String FWversion = "C_LS_1024_v3"; // 16 MHz
 
 #define RANGE 25  // histogram range
 #define EVENTS 500 // maximal number of recorded events
 #define CHANNELS 512    // number of channels in buffer for histogram, including negative numbers
 #define GPSerror 700000 // number of cycles for waitig for GPS in case of GPS error 
-//#define GPSdelay  3   // number of measurements between obtaining GPS position
-//#define GPSdelay  60   // number of measurements between obtaining GPS position cca 10 minutes
 #define GPSdelay 2700   // number of measurements between obtaining GPS position and time
                         // 2700 = cca 12.5 h
 #define GPSWAIT 600 // more than 50 s waiting for GPS fix
-//#define GPSWAIT 60 // less waiting for GPS fix
 
-// Compiled with: Arduino 1.8.13
+#define MAXFILESIZE MAX_MEASUREMENTS * BYTES_MEASUREMENT // in bytes, 4 MB per day, 28 MB per week, 122 MB per month
+//!!!!#define MAX_MEASUREMENTS 11000ul // in measurement cycles, 5 500 per day
+#define MAX_MEASUREMENTS 11ul // in measurement cycles, 5 500 per day
+#define BYTES_MEASUREMENT 531ul // number of bytes per one measurement
+#define MAXFILES 200 // maximal number of files on SD card
 
-/*
-  AORDOS_C for GeoDos
-
+/* Definition of pins
+ *  
 ISP
 ---
 PD0     RX
@@ -44,16 +48,6 @@ RESET  0   PB0
 LED
 ---
 LED_red  23  PC7         // LED for Dasa
-
-LoRa Modem
-----------
-SX1262_RESET, 21, PC5
-SX1262_BUSY, 18, PC2
-SX1262_DIO1, 19, PC3
-CS, 20, PC4
-MOSI, 5, PB5
-MISO, 6, PB6
-SCK, 7, PB7
 
 SD Card Power
 -------------
@@ -119,6 +113,8 @@ TX1/INT1 (D 11) PD3 17|        |24 PC2 (D 18) TCK
 #define IOT_DIO1  19   // PC3
 #define IOT_CS    20   // PC4
 
+String filename = "";
+uint16_t fn;
 uint16_t count = 0;
 uint32_t serialhash = 0;
 uint8_t lo, hi;
@@ -255,13 +251,10 @@ void setup()
   set_power(GPS_OFF);
   set_power(LORA_OFF);
   
-  //watchdog enable
-  //!!!wdt_enable(WDTO_8S);
-
   Wire.setClock(100000);
 
   // Open serial communications
-  Serial.begin(38400);
+  Serial.begin(115200);
   Serial1.begin(38400);
 
   Serial.println("#Cvak...");
@@ -317,8 +310,6 @@ void setup()
   Wire.write((uint8_t)0x00); // 0x05
   Wire.endTransmission();
   
-  //wdt_reset(); //Reset WDT
-
   // make a string for device identification output
   String dataString = "$AIRDOS," + FWversion + ",0,"; // FW version and Git hash
 
@@ -348,40 +339,55 @@ void setup()
     set_power(SD_ON);
 
     delay(100);
-    
+     
     // make sure that the default chip select pin is set to output
     // see if the card is present and can be initialized:
     if (!SD.begin(SS)) 
     {
-      Serial.println("#Card failed, or not present");
-      // don't do anything more:
-      return;
+      Serial.println("#SD init error");
     }
-  
+    for (fn = 1; fn<MAXFILES; fn++) // find last file
+    {
+       filename = String(fn) + ".txt";
+       if (SD.exists(filename) == 0) break;
+    }
+    fn--;
+    filename = String(fn) + ".txt";
+    
     // open the file. note that only one file can be open at a time,
     // so you have to close this one before opening another.
-    File dataFile = SD.open("datalog.txt", FILE_WRITE);
+    File dataFile = SD.open(filename, FILE_WRITE);
+
+    uint32_t filesize = dataFile.size();
+    Serial.print("#Filesize,");
+    Serial.println(filesize); 
+    if (filesize > MAXFILESIZE)
+    {
+      dataFile.close();
+      fn++;
+      filename = String(fn) + ".txt";      
+      dataFile = SD.open(filename, FILE_WRITE);
+    }
+    Serial.print("#Filename,");
+    Serial.println(filename); 
   
     // if the file is available, write to it:
     if (dataFile) 
     {
       dataFile.println(dataString);  // write to SDcard (800 ms)     
       dataFile.close();
-      digitalWrite(LED_red, HIGH);  // Blink for Dasa
-      Serial.println(dataString);  // print SN to terminal 
-      digitalWrite(LED_red, LOW);          
+  
     }  
     // if the file isn't open, pop up an error:
     else 
     {
-      Serial.println("#error opening datalog.txt");
+      Serial.println("#SD error");
     }
-    
+    Serial.println(dataString);  // print SN to terminal 
     set_power(SD_OFF);
   }    
   
   hits = 0;
-  //!!! wdt_reset(); //Reset WDT
 }
 
 void loop()
@@ -389,8 +395,6 @@ void loop()
   uint16_t buffer[RANGE];       // buffer for histogram
   uint32_t hit_time[EVENTS];    // time of events
   uint16_t hit_channel[EVENTS];  // energy of events
-
-  //!!!wdt_reset(); //Reset WDT
 
   {
     // make a string for assembling the data to log:
@@ -456,7 +460,6 @@ void loop()
 
   // GPS **********************
   set_power(GPS_ON);
-//!!! if (false)
   {
      delay(100);
 
@@ -489,7 +492,6 @@ void loop()
         if (incomingByte == '$') 
         {
           messages++;   
-          //wdt_reset();
         };   // Prevent endless waiting
         if (messages > GPSWAIT) break; // maximal waiting for fix
 
@@ -544,20 +546,19 @@ void loop()
     //set_power(GPS_OFF);
 
     {
-        set_power(SD_ON);
-        
-        // make sure that the default chip select pin is set to output
-        // see if the card is present and can be initialized:
-        if (!SD.begin(SS)) 
-        {
-          Serial.println("#Card failed, or not present");
-          // don't do anything more:
-          return;
-        }
-        
+      set_power(SD_ON);
+      
+      // make sure that the default chip select pin is set to output
+      // see if the card is present and can be initialized:
+      if (!SD.begin(SS)) 
+      {
+        Serial.println("#SD init error");
+      }
+      else
+      {
         // open the file. note that only one file can be open at a time,
         // so you have to close this one before opening another.
-        File dataFile = SD.open("datalog.txt", FILE_WRITE);
+        File dataFile = SD.open(filename, FILE_WRITE);
         
         // if the file is available, write to it:
         if (dataFile) 
@@ -570,15 +571,13 @@ void loop()
         // if the file isn't open, pop up an error:
         else 
         {
-          Serial.println("#error opening datalog.txt");
+          Serial.println("#SD Error");
         }
         
         set_power(SD_OFF);
+      }
     }  
-#ifdef DEBUG
     Serial.println(dataString);  // print to terminal (additional 700 ms)
-    //!!!wdt_reset(); //Reset WDT
-#endif
   }
 
   
@@ -598,12 +597,9 @@ void loop()
     uint16_t hit_count = 0;    // clear events
       
     // dosimeter integration
-    //for (uint32_t i=0; i<65535*4; i++)    // 
     for (uint32_t i=0; i<100000; i++)    // cca 10.4 s
     //for (uint32_t i=0; i<10000; i++)    // faster for testing
     {
-      //wdt_reset(); //Reset WDT
-
       // start the conversion
       sbi(ADCSRA, ADSC);   
       delayMicroseconds(20); // wait more than 1.5 cycle of ADC clock for sample/hold
@@ -622,11 +618,6 @@ void loop()
   
       // combine the two bytes
       u_sensor = (hi << 8) | lo;          // 1024
-      //u_sensor = (hi << 7) | (lo >> 1); // 512
-      //u_sensor = (hi << 6) | (lo>>2);   // 256
-      // manage negative values
-      //if (u_sensor <= (CHANNELS/2)-1 ) {u_sensor += (CHANNELS/2);} else {u_sensor -= (CHANNELS/2);}
-      //if (u_sensor < ZERO) {u_sensor = 0;} else {u_sensor -= ZERO;}
     
       if (u_sensor <  RANGE)
       {
@@ -641,7 +632,6 @@ void loop()
         }
         hit_count++;
       }
-      //if (u_sensor > NOISE) hits++;
     }  
 
     
@@ -708,40 +698,37 @@ void loop()
       count++;
 
       {        
-
         set_power(SD_ON);
 
         // make sure that the default chip select pin is set to output
         // see if the card is present and can be initialized:
         if (!SD.begin(SS)) 
         {
-          Serial.println("#Card failed, or not present");
+          Serial.println("#SD init error");
           // don't do anything more:
-          return;
         }
-
-        // open the file. note that only one file can be open at a time,
-        // so you have to close this one before opening another.
-        File dataFile = SD.open("datalog.txt", FILE_WRITE);
-      
-        // if the file is available, write to it:
-        if (dataFile) 
+        else
         {
-          //digitalWrite(LED_red, HIGH);  // Blink for Dasa
-          dataFile.println(dataString);  // write to SDcard (800 ms)     
-          //digitalWrite(LED_red, LOW);          
-          dataFile.close();
+          // open the file. note that only one file can be open at a time,
+          // so you have to close this one before opening another.
+          File dataFile = SD.open(filename, FILE_WRITE);
+        
+          // if the file is available, write to it:
+          if (dataFile) 
+          {
+            dataFile.println(dataString);  // write to SDcard (800 ms)     
+            dataFile.close();
+          }  
+          // if the file isn't open, pop up an error:
+          else 
+          {
+            Serial.println("#SD error");
+          }
         }  
-        // if the file isn't open, pop up an error:
-        else 
-        {
-          Serial.println("#error opening datalog.txt");
-        }
-  
         set_power(SD_OFF);
       }          
       digitalWrite(LED_red, HIGH);  // Blink for Dasa
-      Serial.println(dataString);   // print to terminal (additional 700 ms in DEBUG mode)
+      Serial.println(dataString);   // print to terminal 
       digitalWrite(LED_red, LOW);                
     }    
 
@@ -769,34 +756,41 @@ void loop()
         // see if the card is present and can be initialized:
         if (!SD.begin(SS)) 
         {
-          Serial.println("#Card failed, or not present");
+          Serial.println("#SD init error");
           // don't do anything more:
-          return;
         }
-
-        // open the file. note that only one file can be open at a time,
-        // so you have to close this one before opening another.
-        File dataFile = SD.open("datalog.txt", FILE_WRITE);
-      
-        // if the file is available, write to it:
-        if (dataFile) 
+        else
         {
-          //digitalWrite(LED_red, HIGH);  // Blink for Dasa
-          dataFile.println(dataString);  // write to SDcard (800 ms)     
-          //digitalWrite(LED_red, LOW);          
-          dataFile.close();
+          // open the file. note that only one file can be open at a time,
+          // so you have to close this one before opening another.
+          File dataFile = SD.open(filename, FILE_WRITE);
+        
+          // if the file is available, write to it:
+          if (dataFile) 
+          {
+            dataFile.println(dataString);  // write to SDcard (800 ms)     
+            dataFile.close();
+          }  
+          // if the file isn't open, pop up an error:
+          else 
+          {
+            Serial.println("#SD error");
+          }
         }  
-        // if the file isn't open, pop up an error:
-        else 
-        {
-          Serial.println("#error opening datalog.txt");
-        }
-  
         set_power(SD_OFF);
       }          
       digitalWrite(LED_red, HIGH);  // Blink for Dasa
-      Serial.println(dataString);   // print to terminal (additional 700 ms in DEBUG mode)
+      Serial.println(dataString);   // print to terminal 
       digitalWrite(LED_red, LOW);                
+    }
+    
+    if (count > MAX_MEASUREMENTS) 
+    {
+      count = 0;
+      fn++;
+      filename = String(fn) + ".txt";        
+      Serial.print("#Filename,"); 
+      Serial.println(filename); 
     } 
   }
 }
