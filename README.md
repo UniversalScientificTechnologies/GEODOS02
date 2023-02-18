@@ -36,7 +36,7 @@ GEODOS02 can be used for monitoring the intensity of ionizing radiation over lar
 
 ### Device block diagram
 
-![GEODOS01A block diagram](doc/src/img</GEODOS02_block.png)
+![GEODOS02 block diagram](doc/src/img/GEODOS02_block.png)
 
 ### Sensor element
 
