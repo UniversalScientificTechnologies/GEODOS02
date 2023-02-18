@@ -46,7 +46,7 @@ jobs:
             required-libraries: Adafruit MPL3115A2 Library
             sketch-names-find-start: fw/${{ matrix.type }}
             set-build-path: true
-            build-properties: "-Wno-narrowing"
+            # build-properties: "-Wno-narrowing"
             # build-properties: "build.extra_flags=\"-DCHANNELS=100\"" .. tohle z nejakeho duvodu nefunguje, ackoliv by to mela byt spravna cesta
 
         #- name: Move to right place
