@@ -1,4 +1,4 @@
-# GEODOS02C - Stand alone ionizing radiation monitor
+# GEODOS02C - Ionizing radiation detector for research stations
 
 GEODOS02, also called “CARDOS”, is an adjusted version of scintillation detectors based on GEODOS01 developed previously. The new device is primarily designed for mobile measurements using cars. However, thanks to their construction and characteristics they can be used for other applications as well. The specific feature of CARDOS detectors is that they do not contain any recording medium, Internet of Things data link LoRa, or a time source. Using the detector, therefore, requires connecting it to a recording device (usually a station's computer) that has access to an accurate time and is able to create a record from a USB data stream. The location of the measuring car is logged using a GNSS receiver connected to the same computer.
 
@@ -36,7 +36,7 @@ GEODOS02 can be used for monitoring the intensity of ionizing radiation over lar
 
 ### Device block diagram
 
-![GEODOS01A block diagram](hw/sch_pcb/GEODOS01B_block.png)
+![GEODOS01A block diagram](doc/src/img</GEODOS02_block.png)
 
 ### Sensor element
 
