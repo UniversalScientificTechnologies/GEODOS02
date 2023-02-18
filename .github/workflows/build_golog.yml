@@ -1,0 +1,36 @@
+name: Build GoLog app
+
+on:
+  push:
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        run: |
+          wget https://go.dev/dl/go1.19.3.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go
+          sudo tar -C /usr/local -xzf go1.19.3.linux-amd64.tar.gz
+          rm -f go1.19.3.linux-amd64.tar.gz
+          sudo apt-get install gcc-multilib gcc-mingw-w64 gcc libgl1-mesa-dev xorg-dev
+
+      - name: Build
+        run: |
+          export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
+          cd sw/golog/src
+          mkdir build
+          /usr/local/go/bin/go build -o build/golog_GEODOS02 .
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc /usr/local/go/bin/go build -o build/golog_GEODOS02.exe .
+
+
+      - name: Upload Go test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: GEODOS02_GOLOG
+          path: sw/golog/
