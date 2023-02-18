@@ -19,8 +19,7 @@ GEODOS02 can be used for monitoring the intensity of ionizing radiation over lar
 ### Technical parameters
 
 * Detection element: scintillation crystal NaI(Tl) 10 mm in diameter, 20 mm in length, integrated with SiPM detector
-* Backup power source: rechargeable 18650 Li-ion cell
-* Data memory: SD card
+* Optional backup power source: rechargeable 18650 Li-ion cell
 * Record’s content: energy and time of each event above the specified energy (1MeV by default)
 * Record’s periodicity: 10 s (maximal dead time 2 s)
 * Time resolution: 20 us
