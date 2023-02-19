@@ -121,6 +121,7 @@ uint16_t u_sensor, maximum;
 Adafruit_MPL3115A2 sensor = Adafruit_MPL3115A2();
 uint32_t last_packet = 0;
 uint16_t hits;
+boolean SDinserted = true;
 
 // Read Analog Differential without gain (read datashet of ATMega1280 and ATMega2560 for refference)
 // Use analogReadDiff(NUM)
@@ -343,7 +344,8 @@ void setup()
     // see if the card is present and can be initialized:
     if (!SD.begin(SS)) 
     {
-      Serial.println("#SD init error");
+      Serial.println("#SD init false");
+      SDinserted = false;
     }
     for (fn = 1; fn<MAXFILES; fn++) // find last file
     {
@@ -380,7 +382,8 @@ void setup()
     // if the file isn't open, pop up an error:
     else 
     {
-      Serial.println("#SD error");
+      Serial.println("#SD false");
+      SDinserted = false;
     }
     Serial.println(dataString);  // print SN to terminal 
     set_power(SD_OFF);
@@ -544,6 +547,7 @@ void loop()
     }  
     //set_power(GPS_OFF);
 
+    if (SDinserted)
     {
       set_power(SD_ON);
       
@@ -551,7 +555,8 @@ void loop()
       // see if the card is present and can be initialized:
       if (!SD.begin(SS)) 
       {
-        Serial.println("#SD init error");
+        Serial.println("#SD init false");
+        SDinserted = false;
       }
       else
       {
@@ -570,7 +575,8 @@ void loop()
         // if the file isn't open, pop up an error:
         else 
         {
-          Serial.println("#SD Error");
+          Serial.println("#SD false");
+          SDinserted = false;
         }
         
         set_power(SD_OFF);
@@ -706,6 +712,7 @@ void loop()
        
       count++;
 
+      if (SDinserted)
       {        
         set_power(SD_ON);
 
@@ -713,7 +720,8 @@ void loop()
         // see if the card is present and can be initialized:
         if (!SD.begin(SS)) 
         {
-          Serial.println("#SD init error");
+          Serial.println("#SD init false");
+          SDinserted = false;
           // don't do anything more:
         }
         else
@@ -731,7 +739,8 @@ void loop()
           // if the file isn't open, pop up an error:
           else 
           {
-            Serial.println("#SD error");
+            Serial.println("#SD false");
+            SDinserted = false;
           }
         }  
         set_power(SD_OFF);
@@ -757,7 +766,8 @@ void loop()
         dataString += ",";
         dataString += String(hit_channel[n]); 
       }
-       
+
+      if (SDinserted)
       {
         set_power(SD_ON);
 
@@ -765,7 +775,8 @@ void loop()
         // see if the card is present and can be initialized:
         if (!SD.begin(SS)) 
         {
-          Serial.println("#SD init error");
+          Serial.println("#SD init false");
+          SDinserted = false;
           // don't do anything more:
         }
         else
@@ -783,7 +794,8 @@ void loop()
           // if the file isn't open, pop up an error:
           else 
           {
-            Serial.println("#SD error");
+            Serial.println("#SD false");
+            SDinserted = false;
           }
         }  
         set_power(SD_OFF);
