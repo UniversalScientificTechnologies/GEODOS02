@@ -89,12 +89,8 @@ TX1/INT1 (D 11) PD3 17|        |24 PC2 (D 18) TCK
 #include "wiring_private.h"
 #include <Wire.h>           
 #include <Adafruit_MPL3115A2.h>
-//#include <avr/wdt.h>
-
-//#include <stdio.h>
-//#include <stdint.h>
-
 #include <SPI.h>
+#include "githash.h"
 
 #define LED_red   23   // PC7
 #define RESET     0    // PB0
@@ -311,7 +307,8 @@ void setup()
   Wire.endTransmission();
   
   // make a string for device identification output
-  String dataString = "$AIRDOS," + FWversion + ",0,"; // FW version and Git hash
+  //String dataString = "$AIRDOS," + FWversion + ",0,"; // FW version and Git hash
+  String dataString = "$DOS,GEODOS02," + FWversion + "," + githash + ","; // FW version and Git hash
 
   if (digitalRead(17)) // Protection against sensor mallfunction 
   {
