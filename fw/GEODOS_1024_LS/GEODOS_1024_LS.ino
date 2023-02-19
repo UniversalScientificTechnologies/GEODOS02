@@ -733,8 +733,10 @@ void loop()
           // if the file is available, write to it:
           if (dataFile) 
           {
+            digitalWrite(LED_red, HIGH);  // Blink for Dasa
             dataFile.println(dataString);  // write to SDcard (800 ms)     
             dataFile.close();
+            digitalWrite(LED_red, LOW);                
           }  
           // if the file isn't open, pop up an error:
           else 
@@ -745,9 +747,7 @@ void loop()
         }  
         set_power(SD_OFF);
       }          
-      digitalWrite(LED_red, HIGH);  // Blink for Dasa
       Serial.println(dataString);   // print to terminal 
-      digitalWrite(LED_red, LOW);                
     }    
 
     // Hits out
