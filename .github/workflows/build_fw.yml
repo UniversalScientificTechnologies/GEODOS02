@@ -43,6 +43,7 @@ jobs:
           with:
             arduino-board-fqbn: MightyCore:avr:1284:BOD=disabled,LTO=Os,${{ matrix.fqbn }},variant=modelP --build-property compiler.cpp.extra_flags="-DCHANNELS=${{ matrix.channels }}"
             platform-url:  https://mcudude.github.io/MiniCore/package_MCUdude_MiniCore_index.json https://mcudude.github.io/MightyCore/package_MCUdude_MightyCore_index.json
+            required-libraries: Adafruit MPL3115A2 Library
             sketch-names-find-start: fw/${{ matrix.type }}
             set-build-path: true
             #build-properties: compiler.cpp.extra_flags="-DCHANNELS=${{ matrix.channels }}"
