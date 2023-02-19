@@ -1,1 +1,1 @@
-/home/kacer/git/GEODOS02/fw/githash.h
+../githash.h
