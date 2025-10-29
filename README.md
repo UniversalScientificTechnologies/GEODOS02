@@ -26,7 +26,7 @@ GEODOS02 can be used for monitoring the intensity of ionizing radiation over lar
 * ADC Conversion time: 104 us
 * [Dead time](https://en.wikipedia.org/wiki/Dead_time): 2 us
 * Accuracy of event’s time: 500 ns
-* Energy range: 0.3 to 1 MeV (0,2 MeV resolution). The range could be increased up to 40 MeV by selecting component values.
+* Energy range: 0.3 to 18 MeV (channel width 70 keV). The range could be increased up to 40 MeV by selecting component values.
 * Open-source HW and SW
 * Device status indicator type: LED
 * Operational temperature range: -20°C to +35°C
