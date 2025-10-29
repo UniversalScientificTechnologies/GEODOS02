@@ -1,17 +1,17 @@
 # GEODOS02C - Ionizing radiation detector for research stations
 
-GEODOS02, also called “CARDOS”, is an adjusted version of scintillation detectors based on GEODOS01 developed previously. The new device is primarily designed for mobile measurements using cars. However, thanks to their construction and characteristics they can be used for other applications as well. The specific feature of CARDOS detectors is that they do not contain any recording medium, Internet of Things data link LoRa, or a time source. Using the detector, therefore, requires connecting it to a recording device (usually a station's computer) that has access to an accurate time and is able to create a record from a USB data stream. The location of the measuring car is logged using a GNSS receiver connected to the same computer.
+GEODOS02, also called “CARDOS”, is an adjusted version of scintillation detectors based on [GEODOS01](https://github.com/UniversalScientificTechnologies/GEODOS01) developed previously. The new device is primarily designed for mobile measurements using cars. However, thanks to their construction and characteristics, they can be used for other applications as well. The specific feature of CARDOS detectors is that they do not contain any recording medium, Internet of Things data link LoRa, or a time source. Using the detector, therefore, requires connecting it to a recording device (usually a station's computer) that has access to an accurate time and is able to create a record from a USB data stream. The location of the measuring car is logged using a GNSS receiver connected to the same computer.
 
 ![GEODOS02 mounted on measuring CRREAT car](/doc/src/img/CRREAT_CAR_small.jpg)
 
-If you need a fully automatic ionising radiation dosimeter-spectrometer device (with an internal logging and a backup power supply) or device designed for outdoor use without the possibility of connecting to power supply and data network [GEODOS01](https://github.com/UniversalScientificTechnologies/GEODOS01) might be a better option. We can help you in choosing the most suitable device or even design and develop a new one according to you requirements. In either case, reach us using email [support@ust.cz](mailto:support@ust.cz).
+If you need a fully automatic ionising radiation dosimeter-spectrometer device (with an internal logging and a backup power supply) or a device designed for outdoor use without the possibility of connecting to a power supply and data network [GEODOS01](https://github.com/UniversalScientificTechnologies/GEODOS01) might be a better option. We can help you in choosing the most suitable device or even design and develop a new one according to your requirements. In either case, reach us using email [support@ust.cz](mailto:support@ust.cz).
 
 ### Locations
 
 
 #### Gamma spectrometer for measuring cars for thunderstorm chasing
 
-GEODOS02 can be used for monitoring the intensity of ionizing radiation over large areas. An example of using the CARDOS scintillation detectors include measurements with research cars for CRREAT project, dealing with research into high-energy phenomena in the atmosphere.
+GEODOS02 can be used for monitoring the intensity of ionizing radiation over large areas. An example of using the CARDOS scintillation detectors includes measurements with research cars for the CRREAT project, dealing with research into high-energy phenomena in the atmosphere.
 
 #### Lomnicky Stit observatory
 
@@ -26,7 +26,7 @@ GEODOS02 can be used for monitoring the intensity of ionizing radiation over lar
 * ADC Conversion time: 104 us
 * [Dead time](https://en.wikipedia.org/wiki/Dead_time): 2 us
 * Accuracy of event’s time: 500 ns
-* Energy range: 0.3 to 1 MeV (0,2 MeV resolution). The range could be increased up to 40 MeV by component values selection.
+* Energy range: 0.3 to 1 MeV (0,2 MeV resolution). The range could be increased up to 40 MeV by selecting component values.
 * Open-source HW and SW
 * Device status indicator type: LED
 * Operational temperature range: -20°C to +35°C
@@ -39,7 +39,7 @@ GEODOS02 can be used for monitoring the intensity of ionizing radiation over lar
 
 ### Sensor element
 
-The core of the detector is a scintillation crystal with [SiPM detector](https://en.wikipedia.org/wiki/Silicon_photomultiplier).
+The core of the detector is a scintillation crystal with a [SiPM detector](https://en.wikipedia.org/wiki/Silicon_photomultiplier).
 
 ### Data storage
 
